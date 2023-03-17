@@ -1,14 +1,16 @@
 const errorHandler = (err, req, res, next) => {
 
-    if(err.name === 'ErrorNotFound') {
-        request.status(404).json({
-            message: 'Error Not Found'
-        });
+    console.log(err);
+    if(err.name === "ErrorNotFound") {
+        console.log("MASOOK ERROR HANDLER")
+        res.status(404).json({
+            message: "Error Not Found"
+        })
     } else {
-        request.status(500).json({
-            message: 'Internal Server Error'
-        });
+        res.status(500).json({
+            message: "Internal Server Error"
+        })
     }
 }
 
-module.exports = errorHandler;
+module.exports = errorHandler

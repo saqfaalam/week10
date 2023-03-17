@@ -1,7 +1,7 @@
 const pool = require("../config/config.js");
 
 class Movie {
-  static getMovies = async (next) => {
+  static getMovie = async (next) => {
     const findQuery = `
         SELECT *
         FROM movies;
@@ -23,14 +23,15 @@ class Movie {
         WHERE id = $1
     `;
     try {
-      const data = await pool.query(findQuery[id]);
+      const data = await pool.query(findQuery, [id]);
+
       if (data.rows.length === 0) {
-        next({ name: "Movie not found" });
+        throw { name: "ErrorNotFound" };
       } else {
-        return data.rows[0];
+        return { err: null, data: data.rows[0] };
       }
     } catch (err) {
-      next(err);
+      return { err, data: null };
     }
   };
 
@@ -57,6 +58,40 @@ class Movie {
       next(err);
     }
   };
+
+  static updateMovie = async (id, params, next) => {
+    try {
+      const { title, genres, year } = params;
+      const updateQuery = `
+        UPDATE movies
+        SET title = $1,
+            genres = $2,
+            year = $3
+        WHERE id = $4
+        RETURNING *
+      `;
+      const data = await pool.query(updateQuery, [title, genres, year, id]);
+      return data.rows[0];
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  static deleteMovie = async (id, next) => {
+    try {
+        const deleteQuery = `
+            DELETE FROM movies
+            WHERE id = $1
+            RETURNING *
+        `
+
+        const data = await pool.query(deleteQuery, [id]);
+
+        return data.rows[0]
+    } catch(err) {
+        next(err);
+    }
+}
 }
 
 module.exports = Movie;
